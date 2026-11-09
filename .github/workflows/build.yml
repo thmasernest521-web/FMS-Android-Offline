@@ -1,0 +1,39 @@
+
+name: Build FMS Offline APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract FMS project
+        run: |
+          unzip -o FMS_Android_Offline_1_0.zip -d fms-project
+
+      - name: Build APK
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.7'
+          arguments: -p fms-project assembleDebug
+
+      - name: Upload FMS APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FMS-Offline-APK
+          path: fms-project/app/build/outputs/apk/debug/*.apk
+          if-no-files-foun
+d: error
